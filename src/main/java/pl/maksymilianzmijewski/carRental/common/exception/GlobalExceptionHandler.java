@@ -33,6 +33,20 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
+    @ExceptionHandler(ReservationNotFoundException.class)
+    public ProblemDetail handleReservationNotFound(ReservationNotFoundException e) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
+        problemDetail.setTitle("There is no reservation");
+        return problemDetail;
+    }
+
+    @ExceptionHandler(ReservationConflictException.class)
+    public ProblemDetail handleReservationConflict(ReservationConflictException e) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.getMessage());
+        problemDetail.setTitle("Reservation conflict");
+        return problemDetail;
+    }
+
     @ExceptionHandler(DuplicateResourceException.class)
     public ProblemDetail handleDuplicate(DuplicateResourceException e) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
