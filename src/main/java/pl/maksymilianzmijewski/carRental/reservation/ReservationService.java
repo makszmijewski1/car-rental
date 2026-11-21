@@ -4,12 +4,14 @@ import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pl.maksymilianzmijewski.carRental.car.Car;
 import pl.maksymilianzmijewski.carRental.car.CarRepository;
 import pl.maksymilianzmijewski.carRental.car.CarStatus;
 import pl.maksymilianzmijewski.carRental.common.exception.CarNotFoundException;
 import pl.maksymilianzmijewski.carRental.common.exception.CustomerNotFoundException;
 import pl.maksymilianzmijewski.carRental.common.exception.ReservationConflictException;
+import pl.maksymilianzmijewski.carRental.common.exception.ReservationNotFoundException;
 import pl.maksymilianzmijewski.carRental.customer.Customer;
 import pl.maksymilianzmijewski.carRental.customer.CustomerRepository;
 import pl.maksymilianzmijewski.carRental.reservation.dto.ReservationRequest;
@@ -18,6 +20,7 @@ import pl.maksymilianzmijewski.carRental.reservation.dto.ReservationResponse;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 
 @Service
@@ -34,7 +37,7 @@ public class ReservationService {
     @Autowired
     private ModelMapper modelMapper;
 
-
+    @Transactional
     public ReservationResponse createReservation(@Valid ReservationRequest reservationRequest) {
         if (!reservationRequest.getEndDate().isAfter(reservationRequest.getStartDate())) {
             throw new IllegalArgumentException("The end date must be after the start date");
@@ -68,8 +71,51 @@ public class ReservationService {
         return modelMapper.map(savedReservation, ReservationResponse.class);
     }
 
+
     private BigDecimal calculatePrice(Car car, LocalDate start, LocalDate end) {
         long days = ChronoUnit.DAYS.between(start, end);
         return car.getPricePerDay().multiply(BigDecimal.valueOf(days));
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReservationResponse> getAllReservations() {
+        List<ReservationResponse> reservationResponseList = reservationRepository.findAll()
+                .stream()
+                .map(reservation -> modelMapper.map(reservation, ReservationResponse.class))
+                .toList();
+
+        return reservationResponseList;
+    }
+
+    @Transactional(readOnly = true)
+    public ReservationResponse getReservationById(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ReservationNotFoundException(reservationId));
+
+        return modelMapper.map(reservation, ReservationResponse.class);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReservationResponse> getReservationsByCustomer(Long customerId) {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new CustomerNotFoundException(customerId));
+
+        List<ReservationResponse> reservationResponseList = reservationRepository.findByCustomerCustomerId(customerId)
+                .stream()
+                .map(reservation -> modelMapper.map(reservation, ReservationResponse.class))
+                .toList();
+        return reservationResponseList;
+    }
+
+    @Transactional
+    public ReservationResponse cancelReservation(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ReservationNotFoundException(reservationId));
+
+        if(reservation.getReservationStatus() != ReservationStatus.ACTIVE)
+            throw new ReservationConflictException("Only an active reservation can be cancelled");
+
+        reservation.setReservationStatus(ReservationStatus.CANCELLED);
+        return modelMapper.map(reservation, ReservationResponse.class);
     }
 }
