@@ -14,6 +14,7 @@ import pl.maksymilianzmijewski.carRental.common.exception.ReservationConflictExc
 import pl.maksymilianzmijewski.carRental.common.exception.ReservationNotFoundException;
 import pl.maksymilianzmijewski.carRental.customer.Customer;
 import pl.maksymilianzmijewski.carRental.customer.CustomerRepository;
+import pl.maksymilianzmijewski.carRental.rental.RentalRepository;
 import pl.maksymilianzmijewski.carRental.reservation.dto.ReservationRequest;
 import pl.maksymilianzmijewski.carRental.reservation.dto.ReservationResponse;
 
@@ -33,6 +34,9 @@ public class ReservationService {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private RentalRepository rentalRepository;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -114,6 +118,10 @@ public class ReservationService {
 
         if(reservation.getReservationStatus() != ReservationStatus.ACTIVE)
             throw new ReservationConflictException("Only an active reservation can be cancelled");
+
+        if (rentalRepository.existsByReservationReservationId(reservationId)) {
+            throw new ReservationConflictException("A reservation that has an associated rental cannot be cancelled");
+        }
 
         reservation.setReservationStatus(ReservationStatus.CANCELLED);
         return modelMapper.map(reservation, ReservationResponse.class);
