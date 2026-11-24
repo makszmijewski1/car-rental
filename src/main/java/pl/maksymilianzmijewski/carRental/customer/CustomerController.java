@@ -16,7 +16,7 @@ public class CustomerController {
     @Autowired
     private CustomerService customerService;
 
-    @PostMapping("/public/customer")
+    @PostMapping("/admin/customer")
     public ResponseEntity<CustomerResponse> createCustomer(@Valid @RequestBody
                                            CustomerRequest customerRequest){
         CustomerResponse customerResponse = customerService.createCustomer(customerRequest);

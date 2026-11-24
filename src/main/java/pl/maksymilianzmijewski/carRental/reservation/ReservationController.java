@@ -17,7 +17,7 @@ public class ReservationController {
     @Autowired
     private ReservationService reservationService;
 
-    @PostMapping("/public/reservations")
+    @PostMapping("/admin/reservations")
     public ResponseEntity<ReservationResponse> createReservation(
             @Valid @RequestBody ReservationRequest reservationRequest) {
         ReservationResponse reservationResponse = reservationService.createReservation(reservationRequest);
@@ -36,13 +36,13 @@ public class ReservationController {
         return new ResponseEntity<>(reservationResponse, HttpStatus.OK);
     }
 
-    @GetMapping("/public/reservations/customer/{customerId}")
+    @GetMapping("/admin/reservations/customer/{customerId}")
     public ResponseEntity<List<ReservationResponse>> getReservationsByCustomer(@PathVariable Long customerId){
         List<ReservationResponse> reservationResponseList = reservationService.getReservationsByCustomer(customerId);
         return new ResponseEntity<>(reservationResponseList, HttpStatus.OK);
     }
 
-    @PutMapping("/public/reservations/cancel/{reservationId}")
+    @PutMapping("/admin/reservations/cancel/{reservationId}")
     public ResponseEntity<ReservationResponse> cancelReservation(@PathVariable Long reservationId){
         ReservationResponse reservationResponse = reservationService.cancelReservation(reservationId);
         return new ResponseEntity<>(reservationResponse, HttpStatus.OK);

@@ -126,4 +126,33 @@ public class ReservationService {
         reservation.setReservationStatus(ReservationStatus.CANCELLED);
         return modelMapper.map(reservation, ReservationResponse.class);
     }
+
+
+    // TO JEST DLA KLIENTA ZALOGOWANEGO, POBIERA JEGO ID Z KONTA NIE REQUESTA
+    @Transactional
+    public ReservationResponse findReservationByReservationIdForCustomer(Long reservationId, Long customerId){
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ReservationNotFoundException(reservationId));
+
+        if (!reservation.getCustomer().getCustomerId().equals(customerId)) {
+            throw new ReservationNotFoundException(reservationId);
+        }
+        return modelMapper.map(reservation, ReservationResponse.class);
+    }
+
+    // TO JEST DLA KLIENTA ZALOGOWANEGO, POBIERA JEGO ID Z KONTA NIE REQUESTA
+    @Transactional
+    public ReservationResponse cancelReservationForCustomer(Long reservationId, Long customerId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ReservationNotFoundException(reservationId));
+
+        if (!reservation.getCustomer().getCustomerId().equals(customerId)) {
+            throw new ReservationNotFoundException(reservationId);
+        }
+        return cancelReservation(reservationId);
+    }
+
+
+
+
 }

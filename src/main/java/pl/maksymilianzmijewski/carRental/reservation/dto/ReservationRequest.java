@@ -13,17 +13,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReservationRequest {
-    @NotNull
-    private Long carId;
-
-    @NotNull
-    private Long customerId;
-
-    @NotNull
-    @FutureOrPresent
-    private LocalDate startDate;
-
-    @NotNull
-    @Future
-    private LocalDate endDate;
+    @NotNull private Long carId;
+    @NotNull private Long customerId;
+    @NotNull @FutureOrPresent private LocalDate startDate;
+    @NotNull @Future private LocalDate endDate;
 }
