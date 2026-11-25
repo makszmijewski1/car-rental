@@ -100,4 +100,11 @@ public class GlobalExceptionHandler {
         problemDetail.setTitle("Authentication failed");
         return problemDetail;
     }
+
+    @ExceptionHandler(CarInUseException.class)
+    public ProblemDetail handleCarInUse(CarInUseException e) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.getMessage());
+        problemDetail.setTitle("Car is in use");
+        return problemDetail;
+    }
 }

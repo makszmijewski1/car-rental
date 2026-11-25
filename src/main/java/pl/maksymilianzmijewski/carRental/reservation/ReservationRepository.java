@@ -21,4 +21,5 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
                               @Param("status") ReservationStatus status);
 
     List<Reservation> findByCustomerCustomerId(Long customerId);
+    boolean existsByCarCarId(Long carId);
 }
