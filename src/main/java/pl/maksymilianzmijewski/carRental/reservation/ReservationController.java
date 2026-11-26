@@ -25,8 +25,8 @@ public class ReservationController {
     }
 
     @GetMapping("/admin/reservations")
-    public ResponseEntity<List<ReservationResponse>> getAllReservations(){
-        List<ReservationResponse> reservationResponseList = reservationService.getAllReservations();
+    public ResponseEntity<List<ReservationResponse>> getAllReservations(@RequestParam(name = "status", required = false) ReservationStatus reservationStatus){
+        List<ReservationResponse> reservationResponseList = reservationService.getAllReservations(reservationStatus);
         return new ResponseEntity<>(reservationResponseList, HttpStatus.OK);
     }
 

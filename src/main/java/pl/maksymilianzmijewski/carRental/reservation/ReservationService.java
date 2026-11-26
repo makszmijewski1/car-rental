@@ -82,13 +82,14 @@ public class ReservationService {
     }
 
     @Transactional(readOnly = true)
-    public List<ReservationResponse> getAllReservations() {
-        List<ReservationResponse> reservationResponseList = reservationRepository.findAll()
-                .stream()
+    public List<ReservationResponse> getAllReservations(ReservationStatus reservationStatus) {
+        List<Reservation> reservations = (reservationStatus == null)
+                ? reservationRepository.findAll()
+                : reservationRepository.findByReservationStatus(reservationStatus);
+
+        return reservations.stream()
                 .map(reservation -> modelMapper.map(reservation, ReservationResponse.class))
                 .toList();
-
-        return reservationResponseList;
     }
 
     @Transactional(readOnly = true)
